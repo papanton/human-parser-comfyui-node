@@ -72,9 +72,10 @@ def generate(image, type, device):
   num_classes = dataset_settings[type]['num_classes']
   input_size = dataset_settings[type]['input_size']
   aspect_ratio = input_size[1] * 1.0 / input_size[0]
-  
+
   base_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-  models_dir = os.path.join(base_dir, 'models', 'schp')
+  models_dir = os.path.join(base_dir, 'custom_nodes', 'models', 'schp')
+  
   
   if type == 'lip':
       model_file = 'exp-schp-201908261155-lip.pth'
