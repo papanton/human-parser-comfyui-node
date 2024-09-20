@@ -1,3 +1,4 @@
+import os
 import cv2
 import torch
 import numpy as np
@@ -71,12 +72,23 @@ def generate(image, type, device):
   num_classes = dataset_settings[type]['num_classes']
   input_size = dataset_settings[type]['input_size']
   aspect_ratio = input_size[1] * 1.0 / input_size[0]
+  
+  base_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+  models_dir = os.path.join(base_dir, 'models', 'schp')
+  
   if type == 'lip':
-    model_path = 'models/schp/exp-schp-201908261155-lip.pth'
+      model_file = 'exp-schp-201908261155-lip.pth'
   elif type == 'atr':
-    model_path = 'models/schp/exp-schp-201908301523-atr.pth'
+      model_file = 'exp-schp-201908301523-atr.pth'
   elif type == 'pascal':
-    model_path = 'models/schp/exp-schp-201908270938-pascal-person-part.pth'
+    model_file = 'exp-schp-201908270938-pascal-person-part.pth'
+  else:
+     raise ValueError(f"Unknown model type: {type}")
+  
+  model_path = os.path.join(models_dir, model_file)
+  
+  if not os.path.exists(model_path):
+    raise FileNotFoundError(f"Model file not found: {model_path}")
 
   model = networks.init_model('resnet101', num_classes=num_classes, pretrained=None)
   state_dict = torch.load(model_path)['state_dict']
