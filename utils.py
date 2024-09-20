@@ -68,25 +68,38 @@ def _xywh2cs(x, y, w, h, aspect_ratio):
     scale = np.array([w, h], dtype=np.float32)
     return center, scale
 
+def get_model_path(model_file):
+    current_dir = os.path.dirname(os.path.abspath(__file__))
+    comfy_dir = None
+    
+    # Traverse up the directory tree until we find the ComfyUI folder
+    while current_dir != os.path.dirname(current_dir):  # Stop at root
+        if os.path.basename(current_dir) == 'ComfyUI':
+            comfy_dir = current_dir
+            break
+        current_dir = os.path.dirname(current_dir)
+    
+    if comfy_dir is None:
+        raise ValueError("Could not find ComfyUI directory")
+    
+    models_dir = os.path.join(comfy_dir, 'models', 'schp')
+    return os.path.join(models_dir, model_file)
+
 def generate(image, type, device):
   num_classes = dataset_settings[type]['num_classes']
   input_size = dataset_settings[type]['input_size']
-  aspect_ratio = input_size[1] * 1.0 / input_size[0]
-
-  base_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-  models_dir = os.path.join(base_dir, 'custom_nodes', 'models', 'schp')
-  
+  aspect_ratio = input_size[1] * 1.0 / input_size[0]  
   
   if type == 'lip':
       model_file = 'exp-schp-201908261155-lip.pth'
   elif type == 'atr':
-      model_file = 'exp-schp-201908301523-atr.pth'
+     model_file = 'exp-schp-201908301523-atr.pth'
   elif type == 'pascal':
-    model_file = 'exp-schp-201908270938-pascal-person-part.pth'
+     model_file = 'exp-schp-201908270938-pascal-person-part.pth'
   else:
      raise ValueError(f"Unknown model type: {type}")
-  
-  model_path = os.path.join(models_dir, model_file)
+
+  model_path = get_model_path(model_file)
   
   if not os.path.exists(model_path):
     raise FileNotFoundError(f"Model file not found: {model_path}")
